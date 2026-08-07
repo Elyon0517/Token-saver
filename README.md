@@ -22,9 +22,9 @@ Extracted from the routing core of qin-codex-skills. 634 tests, Python standard 
 
 ---
 
-## Effect
+## Baseline — the problem, not the result
 
-Upstream's own routing, measured on a frozen 12-run cohort:
+Upstream's routing on a frozen 12-run cohort, **before the gate existed**:
 
 | Tier | Direct tokens | Routed tokens | Savings |
 |---|---:|---:|---:|
@@ -33,23 +33,28 @@ Upstream's own routing, measured on a frozen 12-run cohort:
 | complex | 538,903 | 273,442 | +49.3% |
 
 Routing overhead was ~36,800 tokens per run against a simple-tier task worth ~16,300 total.
-The gate removes that overhead from tiers where it does not pay for itself.
+These tiers are what the gate is aimed at. They are not this engine's results.
 
-Resident contract, charged on every routed task:
+## Measured here
 
-| | Upstream | Here |
-|---|---:|---:|
-| Tokens | ~10,985 | **~911** (−91.7%) |
+| | Before | Here | How |
+|---|---:|---:|---|
+| Resident contract | ~10,985 tok | **~911 tok** | `wc -c` on both files, ÷4 |
+| Gate modules loaded | 111 | **20** | `len(sys.modules)` before/after import |
+| Gate wall time | 60 ms | **20 ms** | `time` over the CLI |
+| Tests | — | **634** | full suite |
 
-Gate cost, charged on every task:
+Direct measurements of this repo, taken on one machine.
 
-| | Before | Here |
-|---|---:|---:|
-| Modules loaded | 111 | **20** |
-| Wall time | 60 ms | **20 ms** |
-| Tokens | 0 | **0** |
+## Not measured
 
-One cohort on one machine. Take your own baseline before claiming a number.
+**The tier table above has not been re-run with the gate in place.** Doing so requires
+`benchmark_suite_runner.py`, which needs the Codex CLI and two configured cohort homes.
+
+So the gate's effect on those numbers is *predicted*, not observed: gated tasks skip the
+router, so the ~36,800-token overhead should not be charged to them. That reasoning is sound
+but unverified. Until you run the benchmark yourself, treat the simple and medium tiers as
+open questions rather than solved ones.
 
 ---
 
