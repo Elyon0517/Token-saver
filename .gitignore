@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.DS_Store
+
+# Private runtime state: routing history, receipts, ledgers, caches. Never published.
+Cache/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*-events.jsonl
+result-cache.sqlite
+local/

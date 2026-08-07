@@ -1,0 +1,181 @@
+{
+  "schema_version": 2,
+  "scenarios": [
+    {
+      "prompt": "Open Chrome",
+      "complexity": "easy",
+      "route_type": "inline_tool",
+      "skill": "chrome:control-chrome",
+      "execution_surface": "current_model_inline",
+      "route": [
+        "inline-current-model",
+        "chrome:control-chrome"
+      ],
+      "ending_real_condition": "Chrome is open",
+      "timing_evidence": "wall_clock_to_first_result_excluding_ending"
+    },
+    {
+      "prompt": "Open Chrome and open YouTube",
+      "complexity": "easy",
+      "route_type": "inline_tool",
+      "skill": "chrome:control-chrome",
+      "execution_surface": "current_model_inline",
+      "route": [
+        "inline-current-model",
+        "chrome:control-chrome"
+      ],
+      "ending_real_condition": "youtube.com is loaded",
+      "timing_evidence": "wall_clock_to_first_result_excluding_ending"
+    },
+    {
+      "prompt": "Open Chrome, open YouTube, and search CCTV",
+      "complexity": "easy",
+      "route_type": "inline_tool",
+      "skill": "chrome:control-chrome",
+      "execution_surface": "current_model_inline",
+      "route": [
+        "inline-current-model",
+        "chrome:control-chrome"
+      ],
+      "ending_real_condition": "CCTV query and visible results are present",
+      "timing_evidence": "wall_clock_to_first_result_excluding_ending"
+    },
+    {
+      "prompt": "Design a website like YouTube for me",
+      "complexity": "complex",
+      "route_type": "inline_production",
+      "skill": "build-web-apps:frontend-app-builder",
+      "execution_surface": "current_model_inline",
+      "route": [
+        "inline-current-model",
+        "build-web-apps:frontend-app-builder"
+      ],
+      "ending_real_condition": "A rendered draft exists and core interaction paths render",
+      "timing_evidence": "wall_clock_to_first_result_excluding_ending"
+    }
+  ],
+  "admitted_dispatcher_template": {
+    "activation": "explicit_and_performance_admitted",
+    "admission_precondition": "positive_end_to_end_evidence_required",
+    "authorization": "topology_only_not_execution_proof",
+    "skill": "build-web-apps:frontend-app-builder",
+    "route": [
+      "task-analyze-skill",
+      "workflow-skill",
+      "build-web-apps:frontend-app-builder"
+    ],
+    "illustrative_cold_start_pairs": {
+      "design": "gpt-5.6-sol|high",
+      "implementation": "gpt-5.6-terra|high",
+      "ending_real": "gpt-5.6-terra|high"
+    },
+    "adaptive_result_producer": "implementation",
+    "controller_transitions": {
+      "main_result_release": "observed_entry_coordinator",
+      "ending_dispatch": "observed_entry_coordinator"
+    },
+    "ending_checks": [
+      "responsive",
+      "console",
+      "navigation",
+      "accessibility",
+      "visual"
+    ],
+    "dispatcher_plan": {
+      "schema_version": 2,
+      "complexity": "complex",
+      "topology": "sequential",
+      "nodes": [
+        {
+          "id": "design",
+          "phase": "result",
+          "skill": "build-web-apps:frontend-app-builder",
+          "model": "gpt-5.6-sol",
+          "effort": "high",
+          "dependencies": [],
+          "prompt": "Create the website design direction.",
+          "sandbox": "workspace-write",
+          "execution_domain": "general"
+        },
+        {
+          "id": "implementation",
+          "phase": "result",
+          "skill": "build-web-apps:frontend-app-builder",
+          "model": "gpt-5.6-terra",
+          "effort": "high",
+          "dependencies": [
+            "design"
+          ],
+          "prompt": "Implement the approved frontend draft.",
+          "sandbox": "workspace-write",
+          "execution_domain": "general",
+          "purpose": "implement",
+          "model_memory_scope": {
+            "module": "frontend-implementation",
+            "code_kind": "frontend",
+            "operation": "integration"
+          },
+          "routing_condition": {
+            "task_family": "integration",
+            "artifact": "patch",
+            "scope": "single",
+            "ambiguity": "medium",
+            "modality": "text",
+            "risk": "medium",
+            "complexity": "complex",
+            "owning_skill": "build-web-apps:frontend-app-builder",
+            "project_family": "global",
+            "verification_shape": "real",
+            "execution_domain": "general"
+          },
+          "task_summary": "Implement the YouTube-like frontend draft from the approved design direction.",
+          "candidate_ladder": [
+            "gpt-5.6-luna|low",
+            "gpt-5.6-luna|medium",
+            "gpt-5.6-luna|high",
+            "gpt-5.6-luna|xhigh",
+            "gpt-5.6-luna|max",
+            "gpt-5.6-terra|low",
+            "gpt-5.6-terra|medium",
+            "gpt-5.6-terra|high",
+            "gpt-5.6-terra|xhigh",
+            "gpt-5.6-terra|max",
+            "gpt-5.6-terra|ultra",
+            "gpt-5.6-sol|low",
+            "gpt-5.6-sol|medium",
+            "gpt-5.6-sol|high",
+            "gpt-5.6-sol|xhigh",
+            "gpt-5.6-sol|max",
+            "gpt-5.6-sol|ultra"
+          ],
+          "static_suggestion": "gpt-5.6-terra|high",
+          "hard_floor": "gpt-5.6-luna|low",
+          "trial": false,
+          "routing_recommendation": {
+            "selected_pair": "gpt-5.6-terra|high",
+            "trial": false,
+            "reason": "shared_cold_start",
+            "profile_fingerprint": "af4400a8824bfe69cf34260f196bc429139b6e232e4b390fc855cde921744589",
+            "calibration_state": "cold_start",
+            "best_pair": null,
+            "selection_basis": "dual_model_history"
+          }
+        },
+        {
+          "id": "ending-real",
+          "phase": "ending",
+          "skill": "verify-skill",
+          "model": "gpt-5.6-terra",
+          "effort": "high",
+          "dependencies": [
+            "implementation"
+          ],
+          "prompt": "Run post-result responsive, console, navigation, accessibility, and visual checks.",
+          "sandbox": "read-only",
+          "execution_domain": "general"
+        }
+      ],
+      "main_result_node": "implementation"
+    }
+  }
+}
