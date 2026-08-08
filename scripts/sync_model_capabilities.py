@@ -25,7 +25,7 @@ except ModuleNotFoundError:
     registry_matches_catalog = _model_registry.registry_matches_catalog
 
 
-DEFAULT_SNAPSHOT_PATH = Path(__file__).resolve().parents[1] / "references" / "model-capabilities.md"
+DEFAULT_SNAPSHOT_PATH = Path(__file__).resolve().parents[1] / "contracts" / "references" / "model-capabilities.md"
 
 
 def effort_markdown_lines(registry):
