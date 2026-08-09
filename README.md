@@ -17,7 +17,7 @@ Extracted from the routing core of qin-codex-skills. 634 tests, Python standard 
 | **Rungs** | `local_producer.py` | Adds a free local-model rung: `local ($0) → priority producer → quality ladder`. Off unless configured. |
 | **Router** | `obsidian_adaptive_model_runner.py` | Scores 0–100, resolves the entry pair, runs one producer. Multi-stage requests go through `task_route_dispatcher.py`. |
 | **Learning** | `obsidian_model_memory.py` | Receipt-backed only. 2 PASS → down a rung, quality FAIL → up a rung, stable pair freezes. Operational failures are neutral. |
-| **Contracts** | `contracts/` | 911-token resident kernel; 16 references load only when their situation occurs. |
+| **Trigger** | `SKILL.md` | Its `description` is the first filter: small tasks never load the skill, so they cost nothing. 17 references load only when their situation occurs. |
 | **Benchmark** | `benchmark_suite_runner.py` | Direct vs Auto A/B harness. `strategy_performance.py` is the only authority for a savings claim. |
 
 ---
@@ -39,7 +39,8 @@ These tiers are what the gate is aimed at. They are not this engine's results.
 
 | | Before | Here | How |
 |---|---:|---:|---|
-| Resident contract | ~10,985 tok | **~911 tok** | `wc -c` on both files, ÷4 |
+| Contract loaded when routing | ~10,985 tok | **~1,189 tok** | `wc -c` on both files, ÷4 |
+| Contract loaded for a small task | ~10,985 tok | **0** | skill never triggers |
 | Gate modules loaded | 111 | **20** | `len(sys.modules)` before/after import |
 | Gate wall time | 60 ms | **20 ms** | `time` over the CLI |
 | Tests | — | **634** | full suite |
@@ -103,11 +104,23 @@ cd Token-saver
 python3 -m unittest discover -s tests -p 'test_*.py' -b
 ```
 
-Merge `AGENTS.md` into `~/.codex/AGENTS.md`, replacing `<engine>` with your checkout path.
-That file is the always-resident bootstrap: run the gate first, load the kernel only if the
-gate says to route.
+Install as a Codex skill, so it loads only when a task is worth routing:
 
-If your checkout path contains spaces, quote it in every command you paste into `AGENTS.md`.
+```bash
+mkdir -p ~/.codex/skills/token-saver
+ln -s "$PWD" ~/.codex/skills/token-saver/engine
+cp SKILL.md ~/.codex/skills/token-saver/SKILL.md
+```
+
+Replace `<engine>` in the copied `SKILL.md` with your checkout path. Quote it in every command
+if the path contains spaces.
+
+There is deliberately **no always-resident bootstrap**. The skill's `description` is the filter:
+a single-file edit, a rename, a question, or a typo fix never loads it, so those tasks pay
+nothing at all — not a resident contract, not a tool call. Only work whose description matches
+(three or more coordinated files, an architecture or migration decision, a multi-stage graph,
+or an explicit routing request) loads the skill, and `fast_path.py` then confirms
+deterministically before anything is spawned.
 
 ---
 
@@ -242,10 +255,9 @@ steady-state savings figure.
 ## Layout
 
 ```
-AGENTS.md                    always-resident bootstrap — merge into ~/.codex/AGENTS.md
+SKILL.md                     the skill; its description decides when it loads (~1,189 tok)
 contracts/
-  routing-kernel.md          the only resident contract (~911 tok)
-  references/                16 docs, loaded on demand
+  references/                17 docs, loaded on demand
 scripts/                     32 modules
   fast_path.py               gate
   result_cache.py            cache
@@ -265,6 +277,26 @@ Private state — routing history, receipts, ledgers, caches — stays under
 `~/.codex/model-routing-memory/` and is never committed.
 
 ---
+
+## Whether this is worth installing
+
+Be clear about what the engine does and does not save.
+
+The 65k–97k is not overhead the engine removes. It is overhead the engine **introduces** by
+spawning a second session. The gate's job is to stop it spending that on work that never
+needed one. That brings a net loss back to zero; it does not by itself produce a gain.
+
+A gain requires the task to be large enough that running it on a weaker rung saves more than
+the spawn costs. Upstream's own cohort found that true only for the complex tier (+49.3%);
+simple and medium were −186.2% and −84.8%.
+
+| Your typical work | Recommendation |
+|---|---|
+| Mostly small edits, questions, single-file changes | **Do not install.** Doing the work in your existing session is already the cheapest path. |
+| Regularly large, multi-file, architecture-level tasks, driven from a strong model | Worth installing — the spawn amortises. Take your own baseline first. |
+
+Installing this because it is called a token saver, without work that clears the 65k bar, will
+cost you more than not installing it.
 
 ## Not included
 
