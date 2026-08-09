@@ -4,7 +4,7 @@ A model-routing engine for Codex. Scores every task, skips routing entirely when
 too small to pay for it, serves repeat work from cache, and picks the cheapest model rung
 proven to work for that task shape.
 
-Extracted from the routing core of qin-codex-skills. 634 tests, Python standard library only.
+Extracted from the routing core of qin-codex-skills. 641 tests, Python standard library only.
 
 ---
 
@@ -43,7 +43,7 @@ These tiers are what the gate is aimed at. They are not this engine's results.
 | Contract loaded for a small task | ~10,985 tok | **0** | skill never triggers |
 | Gate modules loaded | 111 | **20** | `len(sys.modules)` before/after import |
 | Gate wall time | 60 ms | **20 ms** | `time` over the CLI |
-| Tests | — | **634** | full suite |
+| Tests | — | **641** | full suite |
 
 Direct measurements of this repo, taken on one machine.
 
@@ -269,7 +269,7 @@ scripts/                     32 modules
   obsidian_model_memory.py   receipt-backed learning
   task_route_dispatcher.py   multi-node graph execution
   benchmark_*.py             measurement harness
-tests/                       634 tests
+tests/                       641 tests
 assets/                      model ladder, route fixtures, benchmark evidence
 ```
 
