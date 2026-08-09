@@ -138,10 +138,25 @@ Entries expire after 30 days on lookup. Empty results are never stored.
 
 Built from the local Codex model cache. Ordinary routing never rescans it.
 
+The ladder committed under `assets/` is frozen: it is the default and what the test suite
+runs against. Generate your machine's ladder **outside the repo** and point the engine at it:
+
 ```bash
-python3 scripts/sync_model_capabilities.py --update    # rescan ~/.codex/models_cache.json
-python3 scripts/sync_model_capabilities.py --check     # verify JSON and snapshot agree
+mkdir -p ~/.codex/token-saver
+python3 scripts/sync_model_capabilities.py --update \
+  --registry ~/.codex/token-saver/model-capability-ladder.json \
+  --output   ~/.codex/token-saver/model-capabilities.md
+
+export TOKEN_SAVER_MODEL_LADDER=~/.codex/token-saver/model-capability-ladder.json
 ```
+
+| Variable | Default | Effect |
+|---|---|---|
+| `TOKEN_SAVER_MODEL_LADDER` | `assets/model-capability-ladder.json` | Ladder the engine loads |
+
+Rewriting the committed asset instead would make the suite pass or fail on which models the
+local Codex catalog happens to expose — a machine without the priority producer builds a valid
+but different ladder, and 79 tests that name it would fail.
 
 Never fetches over the network. If the cache is unavailable, the last valid ladder is kept.
 

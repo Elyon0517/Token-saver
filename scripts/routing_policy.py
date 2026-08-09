@@ -2,12 +2,18 @@
 """Load the shared model ladder and expose deterministic routing helpers."""
 
 import importlib.util
+import os
 from pathlib import Path
 
 # Repo root. Reference documents and the shared ladder ship with the engine, so they
 # resolve from here rather than from any deployed skills directory a caller passes in.
 ENGINE_ROOT = Path(__file__).resolve().parents[1]
-MODEL_CAPABILITY_CONFIG_PATH = ENGINE_ROOT / "assets" / "model-capability-ladder.json"
+# The shipped ladder is *runtime* config: `sync_model_capabilities.py --update` rewrites it
+# to match whichever Codex catalog this machine actually has. Tests must not ride on that --
+# a suite that only passes when the local catalog happens to contain a particular model is
+# not testing the engine, it is testing the machine. Tests point this at a frozen fixture.
+MODEL_LADDER_ENV = "TOKEN_SAVER_MODEL_LADDER"
+MODEL_CAPABILITY_CONFIG_PATH = Path(os.environ.get(MODEL_LADDER_ENV) or (ENGINE_ROOT / "assets" / "model-capability-ladder.json")).expanduser()
 MODEL_REGISTRY_SCRIPT_PATH = Path(__file__).resolve().with_name("model_registry.py")
 _MODEL_REGISTRY_SPEC = importlib.util.spec_from_file_location("task_analyze_model_registry", MODEL_REGISTRY_SCRIPT_PATH)
 _MODEL_REGISTRY = importlib.util.module_from_spec(_MODEL_REGISTRY_SPEC)

@@ -65,7 +65,9 @@ SCHEMA_VERSION = 1
 LOCAL_MEMORY_SCHEMA_VERSION = 1
 MIN_REAL_PASSES_BEFORE_DOWNGRADE = 2
 DEFAULT_VAULT = project_change_memory.DEFAULT_VAULT
-DEFAULT_LADDER = Path(__file__).resolve().parents[1] / "assets" / "model-capability-ladder.json"
+# Same override as routing_policy: tests resolve a frozen fixture, runtime resolves the
+# machine-specific ladder that sync_model_capabilities.py --update maintains.
+DEFAULT_LADDER = Path(os.environ.get("TOKEN_SAVER_MODEL_LADDER") or (Path(__file__).resolve().parents[1] / "assets" / "model-capability-ladder.json")).expanduser()
 DEFAULT_LOCAL_STORE = Path.home() / ".codex" / "model-routing-memory" / "events.jsonl"
 QUALITY_FAILURES = {"quality", "correctness"}
 OPERATIONAL_FAILURES = {"availability", "timeout", "protocol", "telemetry", "execution", "receipt"}
