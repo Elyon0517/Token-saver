@@ -46,15 +46,38 @@ These tiers are what the gate is aimed at. They are not this engine's results.
 
 Direct measurements of this repo, taken on one machine.
 
-## Not measured
+## Measured on a real Codex run
 
-**The tier table above has not been re-run with the gate in place.** Doing so requires
-`benchmark_suite_runner.py`, which needs the Codex CLI and two configured cohort homes.
+Two trivial tasks put through the full router, `gpt-5.6-luna` entry, receipts traced back to
+rows in Codex's own `state_5.sqlite`:
 
-So the gate's effect on those numbers is *predicted*, not observed: gated tasks skip the
-router, so the ~36,800-token overhead should not be charged to them. That reasoning is sound
-but unverified. Until you run the benchmark yourself, treat the simple and medium tiers as
-open questions rather than solved ones.
+| Task | Total | Uncached input | Output | Output share |
+|---|---:|---:|---:|---:|
+| List 5 function names (read-only) | 64,980 | 15,425 | 403 | 0.62% |
+| Fix one typo, `teh` → `the` | 96,584 | 16,190 | 1,034 | 1.07% |
+
+Routing anything through `codex exec` costs 65–97k logical tokens before the task starts,
+independent of how small the task is. That fixed cost is the thing worth avoiding — beside it,
+which model and effort get chosen barely registers.
+
+Same task text, both paths:
+
+| | Gate | Route |
+|---|---|---|
+| Decision | 0 tokens, 20 ms | — |
+| Execution | done inline by the agent already running | 96,584 tokens, 36.5 s |
+
+The gate does not make the work free — the task still has to be done. It avoids **spawning a
+second session** to do it.
+
+`total_tokens` is a logical count, not a bill. Most of the input is cached (79,360 of 95,550
+on the edit), and cached input is normally priced far below uncached.
+
+## Still not measured
+
+The three-tier baseline has not been re-run end to end with the gate in place. That needs an
+authored benchmark suite (`snapshot/`, `prompts/`, `expected/`) and both cohort homes, and the
+Direct arm is pinned to `gpt-5.6-sol|ultra`.
 
 ---
 
